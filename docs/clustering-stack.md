@@ -193,7 +193,7 @@ sequenceDiagram
   C->>HCPU: HTTP /v1/chat/completions
   HCPU->>WCPU: orchestration messages (launch, batching, metadata)
 
-  Note over G0,G1,RDMA: Data plane — NCCL collectives bypass slow "copy everything to CPU" paths
+  Note over G0,RDMA: Data plane — NCCL collectives bypass slow "copy everything to CPU" paths
   G0->>RDMA: RDMA read / write / collectives
   RDMA->>G1: peer GPU traffic (conceptually NIC-to-NIC; payload ends in VRAM)
   G1->>RDMA: RDMA read / write / collectives

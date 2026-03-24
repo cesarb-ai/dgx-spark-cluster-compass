@@ -8,10 +8,47 @@ This folder is the **hands-on** half of the repo: numbered Jupyter notebooks mat
 cd /path/to/dgx-spark-cluster-compass/wizard
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-wizard.txt
-jupyter lab
+python -m jupyter lab --no-browser --ip=127.0.0.1 --port=8888
 ```
 
 Early notebooks (01–02) are mostly **checklists**; you can complete them from any machine with a browser and SSH. Later notebooks expect to run on the **head** Spark (same place you run `launch-cluster.sh`).
+
+### Laptop -> Spark Jupyter tunnel (recommended)
+
+Run Jupyter on the Spark and connect from your laptop over SSH port forwarding:
+
+```bash
+# on Spark (head), inside your venv
+python -m jupyter lab --no-browser --ip=127.0.0.1 --port=8888
+
+# on laptop, separate terminal
+ssh -N -L 8888:127.0.0.1:8888 <user>@<spark-lan-ip>
+```
+
+Then open `http://127.0.0.1:8888` on the laptop.
+
+Shortcut script (from repo root on Spark):
+
+```bash
+./scripts/start-remote-jupyter.sh
+```
+
+Optional args:
+
+```bash
+./scripts/start-remote-jupyter.sh "$HOME/ai_env" 8888
+```
+
+### Quick sanity checks if tunnel fails
+
+```bash
+# on Spark
+ss -ltnp | rg 8888
+python -m jupyter --version
+which python
+```
+
+If SSH works but tunnel logs `channel ... connect failed: Connection refused`, Jupyter is not listening on the Spark target port yet.
 
 ---
 

@@ -107,6 +107,31 @@ Treat as a signal that the **fast path** you are on may not match your GPU + whe
 
 ---
 
+## `Command 'jupyter' not found` or `No module named jupyter`
+
+**Layer:** Tooling / environment (pre-flight).
+
+**Why it happens:** You are on the right Spark host, but not in the same Python environment where Jupyter was installed (or it was never installed in that venv).
+
+**Fix pattern**
+
+1. Activate the intended venv first (example):
+   - `source ~/ai_env/bin/activate`
+2. Verify interpreter and module:
+   - `which python`
+   - `python -m jupyter --version`
+3. If missing, install in that active venv:
+   - `pip install jupyterlab`
+4. Start explicitly from that interpreter:
+   - `python -m jupyter lab --no-browser --ip=127.0.0.1 --port=8888`
+5. From laptop, tunnel in a separate terminal:
+   - `ssh -N -L 8888:127.0.0.1:8888 <user>@<spark-lan-ip>`
+
+**Interpretation tip:** SSH success does not imply Jupyter success.  
+`channel ... connect failed: Connection refused` means the remote target port is closed (Jupyter not running on that port yet).
+
+---
+
 ## Ollama vs. Ray + vLLM
 
 If you tried Ollama first: many “just cluster it” expectations map poorly to **tensor-parallel single-model** serving across two discrete machines. The stack in this compass (Docker + NCCL-aware vLLM + per-node weights) is a different shape of problem than a single-binary local server.

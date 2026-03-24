@@ -8,6 +8,20 @@ If it helped you, **consider starring the repo** so the next person finds it fas
 
 A **human-readable map** for people who are new to clustering two (or more) **NVIDIA DGX Spark** units. Connecting Sparks with a high-speed link is **not** plug-and-play: you must succeed at several independent layers before tensor-parallel inference “feels like one brain.”
 
+## Quickstart (5 minutes)
+
+If you only want the fastest path to "is my cluster healthy?":
+
+1. Open [`wizard/README.md`](wizard/README.md).
+2. On the head Spark, install notebook deps:
+   ```bash
+   pip install -r wizard/requirements-wizard.txt
+   ```
+3. Run notebooks in order: `01` -> `07` (or run [`08_full_stack_console.ipynb`](wizard/08_full_stack_console.ipynb) for one consolidated gate check).
+4. If anything fails, jump to [**Troubleshooting and pitfalls**](docs/troubleshooting-and-pitfalls.md) and map the symptom to the layer.
+
+Recommended first read for mental model: [**Clustering stack (layers and handshakes)**](docs/clustering-stack.md).
+
 ## Fast track — interactive wizards
 
 **Milestone notebooks (recommended order):** see **[`wizard/README.md`](wizard/README.md)** for the full table. Short version:
@@ -94,6 +108,15 @@ This compass **does not replace** those repos; it **orients** you inside them.
 ## From compass to application
 
 - **[`examples/langgraph-connection.py`](examples/langgraph-connection.py)** — minimal **LangGraph** + `ChatOpenAI` pointed at `http://<head>:8000/v1` (OpenAI-compatible vLLM). Install deps with [`examples/requirements-langgraph.txt`](examples/requirements-langgraph.txt).
+
+## Search terms
+
+- DGX Spark cluster setup
+- DGX Spark multi-node vLLM
+- vLLM tensor parallel across nodes
+- NCCL RoCE troubleshooting
+- Ray distributed inference on DGX Spark
+- Connect two DGX Sparks 200G
 
 ## Contributing
 

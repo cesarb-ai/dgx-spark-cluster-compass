@@ -8,9 +8,24 @@ If it helped you, **consider starring the repo** so the next person finds it fas
 
 A **human-readable map** for people who are new to clustering two (or more) **NVIDIA DGX Spark** units. Connecting Sparks with a high-speed link is **not** plug-and-play: you must succeed at several independent layers before tensor-parallel inference “feels like one brain.”
 
-## Fast track — interactive wizard
+## Fast track — interactive wizards
 
-**Want a guided pass through the handshakes on the metal?** Open **[`wizard/setup_guide.ipynb`](wizard/setup_guide.ipynb)** in JupyterLab on your **head Spark** (not your laptop). It walks **network → GPU symmetry → RoCE GID hints → zombie VRAM check → eugr launch command → optional health monitor**, with **gates** between layers. Install deps from [`wizard/requirements-wizard.txt`](wizard/requirements-wizard.txt).
+**Milestone notebooks (recommended order):** see **[`wizard/README.md`](wizard/README.md)** for the full table. Short version:
+
+| Step | Notebook |
+|------|----------|
+| 01 | First Spark: power, Cat6 to router, SSH |
+| 02 | Second Spark on LAN, SSH to both |
+| 03 | QSFP / 200G-class link up, MTU, `ibdev2netdev` |
+| 04 | Cluster L3 (`10.0.0.x`), ping, routes |
+| 05 | NVIDIA playbook + eugr (why not ad-hoc Compose) |
+| 06 | NCCL / RoCE / GID |
+| 07 | vLLM + `launch-cluster.sh` + health |
+| 08 | **All gates in one file** — [`08_full_stack_console.ipynb`](wizard/08_full_stack_console.ipynb) |
+
+The old name [`setup_guide.ipynb`](wizard/setup_guide.ipynb) only **redirects** to the list above.
+
+Install Jupyter deps on the **head Spark**: [`wizard/requirements-wizard.txt`](wizard/requirements-wizard.txt).
 
 ## At a glance (stack)
 
@@ -39,7 +54,7 @@ flowchart LR
 
 ## How to use this repo
 
-0. **Optional but recommended:** run the [**wizard notebook**](wizard/setup_guide.ipynb) on the head node for a single “console” through the layers.
+0. **Optional but recommended:** open [`wizard/README.md`](wizard/README.md) and run notebooks **`01`–`07`** on the head (or **`08`** for one combined console).
 1. Read [**Clustering stack (layers and handshakes)**](docs/clustering-stack.md) once. It explains what must succeed, in order, and includes diagrams.
 2. Keep [**Operational playbook**](docs/playbook-commands.md) handy when you launch or recover from a bad state.
 3. When something breaks, start with [**Troubleshooting and pitfalls**](docs/troubleshooting-and-pitfalls.md) and map the symptom back to a layer.

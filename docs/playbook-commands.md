@@ -1,5 +1,7 @@
 # Operational playbook
 
+Prefer a **step-by-step notebook path** first? See [`wizard/README.md`](../wizard/README.md) (`01`–`07`, or `08` all-in-one).
+
 Commands below are **patterns** distilled from real multi-Spark vLLM bring-up. Replace IPs, interface names, usernames, and model paths with yours. Prefer running cluster scripts from the **head Spark** (not a laptop).
 
 ---

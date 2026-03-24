@@ -2,7 +2,23 @@
 
 When people say they want two Sparks to run **“one giant brain,”** they usually mean **one vLLM (or similar) server** using **tensor parallel** across **both** GPUs. That outcome depends on a **stack of handshakes**. If something fails, the error message often appears **far above** the layer that actually broke (for example, a hang during model init is often **NCCL**, not the attention kernel).
 
-The following order is the one you should use when **debugging**: prove layer *N* before spending hours on layer *N+1*.
+Logs from different **planes** interleave in one terminal—easy to confuse **physical**, **IP**, **orchestration**, **NCCL**, and **vLLM**.
+
+### Planes vs. “green” signals (maps to wizards)
+
+| Plane | What it does | You are “green” when… | Wizard notebook |
+|-------|----------------|------------------------|-----------------|
+| **L1–L2** — Physical + link | QSFP seated, driver, link state, MTU | Cluster port **UP**; `ibdev2netdev` / `ip link` match what you pass to scripts | [`03`](../wizard/03_qsfp_interconnect_link_and_mtu.ipynb) |
+| **L3** — IP & routing | Nodes reach each other on ConnectX/cluster IPs | `ping` both ways; routes and `--nodes` / `-n` agree | [`04`](../wizard/04_l3_cluster_subnet_ping_and_routes.ipynb) |
+| **L4** — Control & orchestration | SSH, image sync, Ray head/worker or `--no-ray` rendezvous | Ray sane or deliberate `--no-ray`; **SSH between cluster IPs** | [`05`](../wizard/05_playbook_eugr_control_plane_orchestration.ipynb) |
+| **L4+** — GPU collectives (NCCL) | Process group over GPUs; RoCE path selection | `NCCL_DEBUG=INFO` shows expected HCA/GID; no infinite init hang | [`06`](../wizard/06_nccl_roce_gpu_collectives.ipynb) |
+| **App** — vLLM | TP splits **one** model across GPUs; API serves | `/v1/models` works; weights visible **inside** container mount | [`07`](../wizard/07_vllm_tensor_parallel_launch_and_health.ipynb) |
+
+**Unbox → management LAN:** [`01`](../wizard/01_first_spark_power_lan_ssh.ipynb), [`02`](../wizard/02_second_spark_lan_ssh.ipynb). **All gates in one notebook:** [`08`](../wizard/08_full_stack_console.ipynb). Index: [`wizard/README.md`](../wizard/README.md).
+
+**Docker** does not replace any row in the table—it packages userspace (vLLM, libs) and still depends on every plane underneath.
+
+The following order is the one you should use when **debugging** in prose form: prove layer *N* before spending hours on layer *N+1*.
 
 ---
 

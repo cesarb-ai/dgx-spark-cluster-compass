@@ -18,6 +18,8 @@
 
 ## Concepts worth reading elsewhere (short list)
 
+- **Blackwell / GB10 version alignment** — see [Blackwell / GB10 “version tax”](troubleshooting-and-pitfalls.md#blackwell--gb10-version-tax-cuda-pytorch-containers) in this repo; then confirm pins against **current** NVIDIA Spark documentation for your hardware generation.
+
 - **NCCL** — collective communication library used when one process group spans GPUs (and nodes). Environment variables such as `NCCL_IB_HCA` and `NCCL_IB_GID_INDEX` steer which RDMA port and GID the traffic uses; wrong choices often look like “hang at FlashAttention” or silent startup stalls.
 - **Ray** — optional but common **distributed executor** for vLLM in these recipes; it is *orchestration*, not the GPU math itself. You can sometimes bypass Ray (`--no-ray` in some workflows) to isolate whether a failure is Ray vs. NCCL vs. vLLM.
 - **Tensor parallelism (TP)** — model shards across GPUs; **TP = number of GPUs** in the simple two-Spark, one-GPU-per-node case. Each participating node typically needs a **full local copy** of weights (or shared storage mounted the same way everywhere).

@@ -4,6 +4,22 @@ Use this with [Clustering stack](clustering-stack.md): find the **layer**, then 
 
 ---
 
+## Blackwell / GB10 “version tax” (CUDA, PyTorch, containers)
+
+Spark systems built around **Blackwell-class GPUs (e.g. GB10)** often land **ahead** of the “stable” toolchain story you see in older blog posts or long-unchanged playbook snippets. In practice you may need **newer CUDA** (for example **CUDA 13.1+** on some images) and **newer PyTorch** builds (**2.9 nightlies** or whatever your **current** NVIDIA Spark software bundle ships with)—not the conservative pins you would use on an Ampere-era workstation.
+
+**Why this matters:** copying year-old “known good” versions from generic ML tutorials is a fast path to **mysterious build failures**, **driver/library skew**, or runtime errors that look like application bugs but are really **ABI mismatch**.
+
+**What to do**
+
+- Treat **NVIDIA’s current Spark / DGX Spark release notes and container tags** as the source of truth for your SKU—not this markdown file.
+- Align **host driver**, **container base**, **PyTorch**, and **vLLM wheel** from **one** coherent stack (eugr `spark-vllm-docker`, NVIDIA NGC, or NVIDIA playbook images).
+- When something fails after an OS upgrade, ask first: **did the version tax move under me?**
+
+Exact version triples change quarterly; the **pattern** is stable: Blackwell-era hardware pays a **version tax** until your whole stack agrees on one generation.
+
+---
+
 ## “It works on one Spark but not two”
 
 **Likely layers:** L1 (IP), L2 (SSH), L5 (NCCL / RoCE steering), L7 (weights not on both nodes).
@@ -19,7 +35,7 @@ Use this with [Clustering stack](clustering-stack.md): find the **layer**, then 
 
 ## Hang at “FlashAttention” or long silence during init
 
-**Often not FlashAttention.** In multi-node jobs, this frequently maps to **distributed initialization** or **NCCL** waiting on a route that never comes up.
+**FlashAttention is the victim, not the suspect.** The log line is memorable, so everyone blames it—but in multi-node setups the stall is **very often** distributed init, **NCCL**, or a bad RoCE/GID choice while the attention kernel is just the next milestone in the log.
 
 **What to do**
 

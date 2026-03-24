@@ -146,33 +146,47 @@ The following order is the one you should use when **debugging**: prove layer *N
 ```mermaid
 flowchart TB
   subgraph setup [Bootstrap order]
-    P[Physical link up]
-    IP[L3 IPs and ping]
-    SSH[SSH from head to workers]
-    DK[Docker + volume mounts]
-    R[Ray or executor choice]
-    N[NCCL IB/RoCE env]
-    V[vLLM engine + VRAM]
-    W[Weights materialized per node]
+    P[Layer 0 — Physical link up]
+    IP[Layer 1 — L3 IPs and ping]
+    SSH[Layer 2 — SSH from head to workers]
+    DK[Layer 3 — Docker + volume mounts]
+    R[Layer 4 — Ray or executor]
+    N[Layer 5 — NCCL IB/RoCE env]
+    V[Layer 6 — vLLM engine + VRAM]
+    W[Layer 7 — Weights materialized per node]
     P --> IP --> SSH --> DK --> R --> N --> V --> W
   end
+  N -.->|NCCL still wrong? re-check fabric| P
+  N -.->|wrong subnet / wrong iface?| IP
 ```
+
+When Layer 5 misbehaves, the **fix is rarely “more vLLM flags.”** Walk backward: RoCE device and GID, then IP reachability, then **physical** link and port choice.
 
 **Runtime** (simplified single client request):
 
 ```mermaid
 sequenceDiagram
   participant C as Client
-  participant H as vLLM head process
-  participant W as vLLM worker process
-  participant N as NCCL / RDMA fabric
+  participant HCPU as Head CPU process
+  participant WCPU as Worker CPU process
+  participant G0 as Head GPU VRAM
+  participant G1 as Worker GPU VRAM
+  participant RDMA as RoCE / RDMA NICs
 
-  C->>H: HTTP /v1/chat/completions
-  H->>W: distributed batch / KV / layers per TP plan
-  H->>N: GPU collectives as needed
-  W->>N: GPU collectives as needed
-  H->>C: response tokens
+  Note over HCPU,WCPU: Control plane — Ray, Python, schedulers (often over regular IP / Ethernet)
+  C->>HCPU: HTTP /v1/chat/completions
+  HCPU->>WCPU: orchestration messages (launch, batching, metadata)
+
+  Note over G0,G1,RDMA: Data plane — NCCL collectives bypass slow "copy everything to CPU" paths
+  G0->>RDMA: RDMA read / write / collectives
+  RDMA->>G1: peer GPU traffic (conceptually NIC-to-NIC; payload ends in VRAM)
+  G1->>RDMA: RDMA read / write / collectives
+  RDMA->>G0: peer GPU traffic
+
+  HCPU->>C: response tokens (assembled on serving rank)
 ```
+
+**How to read this:** the **control plane** (who runs what, batch boundaries) often rides the same cluster IP network you configured for SSH and Ray. The **data plane** for tensor parallel is dominated by **NCCL** over **RoCE/RDMA**: high-volume traffic is meant to stay **off** the slow “bounce everything through a single gigabit bridge” failure mode. When people say **bare metal / RDMA matters**, they mean this second path—not that HTTP magically becomes RDMA.
 
 ---
 

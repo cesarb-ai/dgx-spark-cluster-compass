@@ -1,0 +1,4 @@
+# Run on the Spark head (or any host that matches your cluster tooling).
+jupyterlab>=4.0.0
+matplotlib>=3.8.0
+requests>=2.31.0

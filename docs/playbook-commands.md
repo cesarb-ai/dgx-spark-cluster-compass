@@ -87,6 +87,29 @@ curl -sS http://127.0.0.1:8000/v1/models | head
 
 ---
 
+## 5b. Verifying the fabric (“sovereign benchmarking”)
+
+LLM serving can **look** fine on a slow path until load rises. Before you trust multi-node TP, prove the **high-speed highway** exists: NCCL over the **intended** adapters, not an accidental 1 Gb/s detour.
+
+### Link sanity (host)
+
+On **each** Spark, confirm the cluster interfaces are **up** and match what you pass to launch scripts (`--eth-if`, `--ib-if`). Useful tools include `ip link`, `ethtool <iface>`, and (for RDMA) `ibv_devinfo` / `rdma link`—exact output varies by driver stack.
+
+### `nccl-tests` (bandwidth ground truth)
+
+Build and run **[NVIDIA/nccl-tests](https://github.com/NVIDIA/nccl-tests)** on both nodes with the same **MPI** launcher and the same **NCCL_IB_*** environment you use for vLLM. Multi-node examples are in that repository’s README (typical pattern: `mpirun` with one rank per GPU, hostfile listing cluster IPs on the **cluster** subnet).
+
+**How to interpret numbers**
+
+- NCCL reports depend on **test** (`all_reduce_perf`, message sizes, algorithm). You are looking for **order-of-magnitude sanity**, not a lab certification.
+- On a **healthy 200 Gb/s-class** link between two Sparks, all-reduce **bus bandwidth** is often in a range that **clearly separates** “RDMA is doing its job” from “I am accidentally on slow Ethernet.” Think **well above trivial 1–10 Gb/s-class** results when the fabric is correctly steered—many successful pairs see figures on the order of **~180+ Gb/s effective** in favorable `all_reduce` configurations, but **your** ceiling depends on message size, NCCL version, and topology—compare **before/after** cable or `NCCL_IB_GID_INDEX` changes, not against a stranger’s screenshot.
+
+If `nccl-tests` is poor but `ping` works, you have a **Layer 0–5** problem, not a vLLM problem.
+
+Docker alternative: some teams run `nccl-tests` inside **NGC** PyTorch / CUDA images with matching drivers; keep **container `--network host`**, **IPC**, and **GPU** flags consistent with how you run vLLM.
+
+---
+
 ## 6. GPU hygiene when “mysterious” VRAM is gone
 
 On **each** node, before a clean run:

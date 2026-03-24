@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+title: "DGX Spark cluster compass"
+message: "If you use this guide, please cite it using this metadata."
+type: software
+authors:
+  - family-names: "Bohorquez"
+    given-names: "Cesar"
+    email: "52801830+cesarb-ai@users.noreply.github.com"
+repository-code: "https://github.com/cesarb-ai/dgx-spark-cluster-compass"
+license: "MIT"
+keywords:
+  - "nvidia"
+  - "dgx spark"
+  - "vllm"
+  - "distributed inference"
+  - "nccl"
+  - "roce"
+  - "ray"
+  - "tensor parallelism"

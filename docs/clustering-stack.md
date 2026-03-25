@@ -187,16 +187,16 @@ sequenceDiagram
   participant WCPU as Worker CPU process
   participant G0 as Head GPU VRAM
   participant G1 as Worker GPU VRAM
-  participant RDMA as RoCE / RDMA NICs
+  participant RDMA as RoCE and RDMA NICs
 
-  Note over HCPU,WCPU: Control plane — Ray, Python, schedulers (often over regular IP / Ethernet)
-  C->>HCPU: HTTP /v1/chat/completions
+  Note over HCPU,WCPU: Control plane — Ray, Python, schedulers (often over regular IP or Ethernet)
+  C->>HCPU: "HTTP /v1/chat/completions"
   HCPU->>WCPU: orchestration messages (launch, batching, metadata)
 
-  Note over G0,RDMA: Data plane — NCCL collectives bypass slow "copy everything to CPU" paths
-  G0->>RDMA: RDMA read / write / collectives
-  RDMA->>G1: peer GPU traffic (conceptually NIC-to-NIC; payload ends in VRAM)
-  G1->>RDMA: RDMA read / write / collectives
+  Note over G0,RDMA: Data plane — NCCL collectives bypass slow copy-through-CPU paths
+  G0->>RDMA: "RDMA read / write / collectives"
+  RDMA->>G1: peer GPU traffic (NIC to NIC; payload ends in VRAM)
+  G1->>RDMA: "RDMA read / write / collectives"
   RDMA->>G0: peer GPU traffic
 
   HCPU->>C: response tokens (assembled on serving rank)

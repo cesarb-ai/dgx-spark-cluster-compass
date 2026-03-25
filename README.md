@@ -37,8 +37,6 @@ Recommended first read for mental model: [**Clustering stack (layers and handsha
 | 07 | vLLM + `launch-cluster.sh` + health |
 | 08 | **All gates in one file** — [`08_full_stack_console.ipynb`](wizard/08_full_stack_console.ipynb) |
 
-The old name [`setup_guide.ipynb`](wizard/setup_guide.ipynb) only **redirects** to the list above.
-
 Install Jupyter deps on the **head Spark**: [`wizard/requirements-wizard.txt`](wizard/requirements-wizard.txt).
 
 ## At a glance (stack)

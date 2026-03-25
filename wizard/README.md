@@ -65,8 +65,6 @@ If SSH works but tunnel logs `channel ... connect failed: Connection refused`, J
 | 07 | [`07_vllm_tensor_parallel_launch_and_health.ipynb`](07_vllm_tensor_parallel_launch_and_health.ipynb) | **eugr** `launch-cluster.sh`, materialized weights reminder, optional **health** / `/v1/models` smoke. |
 | 08 | [`08_full_stack_console.ipynb`](08_full_stack_console.ipynb) | **All gates in one notebook** (single-file “admin console”; same as the original monolithic wizard). |
 
-**Legacy name:** [`setup_guide.ipynb`](setup_guide.ipynb) only **redirects** to this README (bookmarks from older links).
-
 ---
 
 ## Planes vs. “green” signals (how logs map to reality)
